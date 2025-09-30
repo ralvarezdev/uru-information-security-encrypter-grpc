@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package ralvarezdev;
+
+service Encrypter {
+    // Upload a file using streaming
+    rpc EncryptFile(stream FileChunk) returns (FileUploadResponse);
+
+    // Generate certificate
+    rpc GenerateCertificate(CertificateSubject) returns (stream CertificateChunk);
+}
+
+message FileChunk {
+    bytes content = 1;
+    string filename = 2;
+}
+
+message FileUploadResponse {
+    bool success = 1;
+    string message = 2;
+    int64 bytes_received = 3;
+}
+
+message CertificateSubject {
+  string common_name = 1;
+  string organization = 2;
+  string organization_unit = 3;
+  string locality = 4;
+  string state = 5;
+  string country = 6;
+}
+
+message CertificateChunk {
+    bytes content = 1;
+}
