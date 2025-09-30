@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\"7\n\x12\x45ncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\"O\n\x13\x45ncryptFileResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x16\n\x0e\x62ytes_received\x18\x03 \x01(\x03\"\x94\x01\n\x1aGenerateCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x19\n\x11organization_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\".\n\x1bGenerateCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x32\xcb\x01\n\tEncrypter\x12R\n\x0b\x45ncryptFile\x12\x1f.ralvarezdev.EncryptFileRequest\x1a .ralvarezdev.EncryptFileResponse(\x01\x12j\n\x13GenerateCertificate\x12\'.ralvarezdev.GenerateCertificateRequest\x1a(.ralvarezdev.GenerateCertificateResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\"7\n\x12\x45ncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\"O\n\x13\x45ncryptFileResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x16\n\x0e\x62ytes_received\x18\x03 \x01(\x03\"\x96\x01\n\x1aGenerateCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\".\n\x1bGenerateCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x32\xcb\x01\n\tEncrypter\x12R\n\x0b\x45ncryptFile\x12\x1f.ralvarezdev.EncryptFileRequest\x1a .ralvarezdev.EncryptFileResponse(\x01\x12j\n\x13GenerateCertificate\x12\'.ralvarezdev.GenerateCertificateRequest\x1a(.ralvarezdev.GenerateCertificateResponse0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,9 +36,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ENCRYPTFILERESPONSE']._serialized_start=101
   _globals['_ENCRYPTFILERESPONSE']._serialized_end=180
   _globals['_GENERATECERTIFICATEREQUEST']._serialized_start=183
-  _globals['_GENERATECERTIFICATEREQUEST']._serialized_end=331
-  _globals['_GENERATECERTIFICATERESPONSE']._serialized_start=333
-  _globals['_GENERATECERTIFICATERESPONSE']._serialized_end=379
-  _globals['_ENCRYPTER']._serialized_start=382
-  _globals['_ENCRYPTER']._serialized_end=585
+  _globals['_GENERATECERTIFICATEREQUEST']._serialized_end=333
+  _globals['_GENERATECERTIFICATERESPONSE']._serialized_start=335
+  _globals['_GENERATECERTIFICATERESPONSE']._serialized_end=381
+  _globals['_ENCRYPTER']._serialized_start=384
+  _globals['_ENCRYPTER']._serialized_end=587
 # @@protoc_insertion_point(module_scope)
