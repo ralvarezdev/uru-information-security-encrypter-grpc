@@ -7,12 +7,32 @@ import grpc
 
 import ralvarezdev.encrypter_pb2 as encrypter_pb2
 import ralvarezdev.encrypter_pb2_grpc as encrypter_pb2_grpc
-from ed25519.certificate import generate_certificate_from_public_key
+from ed25519.certificate import generate_certificate_from_public_key, validate_certificate_from_pem_data
 from ed25519.encryption import encrypt_and_save_file
 from ed25519 import issuer_public_key, data_path, issuer_subject, certificate_validity_days
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def EncryptFile(self, request_iterator, context):
+		# Get the certificate bytes from metadata
+		cert_bytes = None
+		for key, value in context.invocation_metadata():
+			if key == 'certificate':
+				cert_bytes = value.encode('utf-8')
+				break
+		if not cert_bytes:
+			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+			context.set_details('Certificate metadata is required')
+			print("Missing certificate metadata")
+			return encrypter_pb2.Empty()
+
+		# Validate the certificate
+		if not validate_certificate_from_pem_data(cert_bytes, issuer_public_key):
+			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+			context.set_details('Invalid certificate')
+			print("Invalid certificate")
+			return encrypter_pb2.Empty()
+		print("Certificate validated successfully")
+
 		# Accumulate file chunks
 		files_bytes = dict()
 
@@ -36,13 +56,17 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				ext = ""
 
 			# Encrypt and save the file
-			output_path = os.path.join(data_path, filename + "_" + str(uuid.uuid4()) + ext + ".enc")
+			output_base_filename = filename + "_" + str(uuid.uuid4())
+			output_file_path = os.path.join(data_path, output_base_filename + ext + ".enc")
+			output_cert_file_path = os.path.join(data_path, output_base_filename + ext + ".crt")
 			encrypt_and_save_file(
 				file_path=os.path.join(data_path, filename),
 				public_key=issuer_public_key,
-				output_path=output_path,
-				)
-			print(f"Encrypted file saved to: {output_path}")
+				certificate_bytes=cert_bytes,
+				output_file_path=output_file_path,
+				output_cert_path=output_cert_file_path,
+			)
+			print(f"Encrypted file saved to: {output_file_path}")
 
 		# Respond with success message
 		return encrypter_pb2.Empty()

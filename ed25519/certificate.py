@@ -57,3 +57,27 @@ def generate_certificate_from_public_key(
 		algorithm=None
 	)
 	return cert.public_bytes(serialization.Encoding.PEM)
+
+def validate_certificate_from_pem_data(certificate_pem: bytes, public_key) -> bool:
+	"""
+	Validate a certificate against a public key.
+
+	Args:
+		certificate_pem (bytes): PEM-encoded certificate.
+		public_key: The public key object.
+
+	Returns:
+		bool: True if the certificate is valid and matches the public key, False otherwise.
+	"""
+	try:
+		cert = x509.load_pem_x509_certificate(certificate_pem)
+		return cert.public_key().public_bytes(
+			serialization.Encoding.Raw,
+			serialization.PublicFormat.Raw
+		) == public_key.public_bytes(
+			serialization.Encoding.Raw,
+			serialization.PublicFormat.Raw
+		)
+	except Exception as e:
+		print(f"Certificate validation error: {e}")
+		return False
