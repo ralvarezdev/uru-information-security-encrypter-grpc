@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from ralvarezdev import encrypter_pb2 as ralvarezdev_dot_encrypter__pb2
 
 GRPC_GENERATED_VERSION = '1.75.1'
@@ -37,7 +38,7 @@ class EncrypterStub(object):
         self.EncryptFile = channel.stream_unary(
                 '/ralvarezdev.Encrypter/EncryptFile',
                 request_serializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_encrypter__pb2.EncryptFileResponse.FromString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.GenerateCertificate = channel.unary_stream(
                 '/ralvarezdev.Encrypter/GenerateCertificate',
@@ -69,7 +70,7 @@ def add_EncrypterServicer_to_server(servicer, server):
             'EncryptFile': grpc.stream_unary_rpc_method_handler(
                     servicer.EncryptFile,
                     request_deserializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.FromString,
-                    response_serializer=ralvarezdev_dot_encrypter__pb2.EncryptFileResponse.SerializeToString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'GenerateCertificate': grpc.unary_stream_rpc_method_handler(
                     servicer.GenerateCertificate,
@@ -103,7 +104,7 @@ class Encrypter(object):
             target,
             '/ralvarezdev.Encrypter/EncryptFile',
             ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
-            ralvarezdev_dot_encrypter__pb2.EncryptFileResponse.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

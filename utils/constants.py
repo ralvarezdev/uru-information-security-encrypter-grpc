@@ -34,3 +34,6 @@ issuer_subject = x509.Name([
 
 # Load certificate validity period from environment variables
 certificate_validity_days = int(os.getenv("CERTIFICATE_VALIDITY_DAYS"))
+
+# Data path
+data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "data")

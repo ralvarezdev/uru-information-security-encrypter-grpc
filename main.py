@@ -1,27 +1,51 @@
 from argparse import ArgumentParser
 from concurrent import futures
+import os
+import uuid
 
 import grpc
 
 import ralvarezdev.encrypter_pb2 as encrypter_pb2
 import ralvarezdev.encrypter_pb2_grpc as encrypter_pb2_grpc
 from utils.certificate import generate_certificate_from_public_key
-from utils.constants import issuer_public_key
+from utils.encryption import encrypt_and_save_file
+from utils.constants import issuer_public_key, data_path
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def EncryptFile(self, request_iterator, context):
-		total_bytes = 0
-		filename = None
-		for req in request_iterator:
-			if filename is None:
-				filename = req.filename
-			total_bytes += len(req.content)
-			# Here you would process or save the file chunk
-		return encrypter_pb2.EncryptFileResponse(
-			success=True,
-			message=f"Received file {filename}",
-			bytes_received=total_bytes,
-			)
+		# Accumulate file chunks
+		files_bytes = dict()
+
+		# Process each chunk in the stream
+		for chunk in request_iterator:
+			filename = chunk.filename
+			if filename not in files_bytes:
+				files_bytes[filename] = bytearray()
+			files_bytes[filename].extend(chunk.content)
+
+		# Iterate over received files and print their sizes
+		for filename, file_bytes in files_bytes.items():
+			total_bytes = len(file_bytes)
+			print(f"Received file: {filename}, Size: {total_bytes} bytes")
+
+			# Get the original extension
+			_, ext = os.path.splitext(filename)
+			if ext:
+				ext = "." + ext.lstrip('.')
+			else:
+				ext = ""
+
+			# Encrypt and save the file
+			output_path = os.path.join(data_path, filename + "_" + str(uuid.uuid4()) + ext + ".enc")
+			encrypt_and_save_file(
+				file_path=os.path.join(data_path, filename),
+				public_key=issuer_public_key,
+				output_path=output_path,
+				)
+			print(f"Encrypted file saved to: {output_path}")
+
+		# Respond with success message
+		return encrypter_pb2.Empty()
 
 	def GenerateCertificate(self, request, context):
 		# Get the certificate subject from the request
@@ -48,6 +72,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				context.set_details(
 					f"{field.replace('_', ' ').title()} is required"
 					)
+				print(f"Missing required field: {field}")
 				yield encrypter_pb2.GenerateCertificateResponse()
 				return
 
@@ -61,8 +86,11 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			state=state,
 			country=country,
 		)
-		yield encrypter_pb2.GenerateCertificateResponse(content=cert_content)
 
+		print(f"Generated certificate for {common_name}")
+
+		# Return the certificate content
+		yield encrypter_pb2.GenerateCertificateResponse(content=cert_content)
 
 def serve(host: str, port: int):
 	"""

@@ -2,9 +2,11 @@ syntax = "proto3";
 
 package ralvarezdev;
 
+import "google/protobuf/empty.proto";
+
 service Encrypter {
     // Upload a file using streaming
-    rpc EncryptFile(stream EncryptFileRequest) returns (EncryptFileResponse);
+    rpc EncryptFile(stream EncryptFileRequest) returns (google.protobuf.Empty);
 
     // Generate certificate
     rpc GenerateCertificate(GenerateCertificateRequest) returns (stream GenerateCertificateResponse);
@@ -13,12 +15,6 @@ service Encrypter {
 message EncryptFileRequest {
     bytes content = 1;
     string filename = 2;
-}
-
-message EncryptFileResponse {
-    bool success = 1;
-    string message = 2;
-    int64 bytes_received = 3;
 }
 
 message GenerateCertificateRequest {

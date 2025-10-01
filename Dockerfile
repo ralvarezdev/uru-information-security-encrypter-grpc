@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 50051
 
-CMD ["python", "server.py", "--host", "[::]", "--port", "50051"]
+CMD ["python", "main.py", "--host", "[::]", "--port", "50051"]
