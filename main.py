@@ -7,9 +7,9 @@ import grpc
 
 import ralvarezdev.encrypter_pb2 as encrypter_pb2
 import ralvarezdev.encrypter_pb2_grpc as encrypter_pb2_grpc
-from utils.certificate import generate_certificate_from_public_key
-from utils.encryption import encrypt_and_save_file
-from utils.constants import issuer_public_key, data_path
+from ed25519.certificate import generate_certificate_from_public_key
+from ed25519.encryption import encrypt_and_save_file
+from ed25519 import issuer_public_key, data_path, issuer_subject, certificate_validity_days
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def EncryptFile(self, request_iterator, context):
@@ -79,12 +79,14 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		# Generate the certificate
 		cert_content = generate_certificate_from_public_key(
 			public_key=issuer_public_key,
+			issuer_subject=issuer_subject,
 			common_name=common_name,
 			organization=organization,
 			organizational_unit=organizational_unit,
 			locality=locality,
 			state=state,
 			country=country,
+			certificate_validity_days=certificate_validity_days,
 		)
 
 		print(f"Generated certificate for {common_name}")

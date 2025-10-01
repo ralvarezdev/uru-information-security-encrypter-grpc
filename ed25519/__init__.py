@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 
-from utils.certificate import load_private_key_from_file, load_public_key_from_file
+from ed25519.keys import load_private_key_from_file, load_public_key_from_file
 
 # Load environment variables from a .env file
 load_dotenv()
