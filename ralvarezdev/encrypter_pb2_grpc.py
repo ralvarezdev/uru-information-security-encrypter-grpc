@@ -37,7 +37,7 @@ class EncrypterStub(object):
         """
         self.SendEncryptedFile = channel.stream_unary(
                 '/ralvarezdev.Encrypter/SendEncryptedFile',
-                request_serializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
+                request_serializer=ralvarezdev_dot_encrypter__pb2.SendEncryptFileRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
 
@@ -56,7 +56,7 @@ def add_EncrypterServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendEncryptedFile': grpc.stream_unary_rpc_method_handler(
                     servicer.SendEncryptedFile,
-                    request_deserializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.FromString,
+                    request_deserializer=ralvarezdev_dot_encrypter__pb2.SendEncryptFileRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
@@ -85,7 +85,7 @@ class Encrypter(object):
             request_iterator,
             target,
             '/ralvarezdev.Encrypter/SendEncryptedFile',
-            ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
+            ralvarezdev_dot_encrypter__pb2.SendEncryptFileRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,

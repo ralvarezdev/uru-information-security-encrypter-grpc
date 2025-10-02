@@ -1,15 +1,24 @@
 from argparse import ArgumentParser
 from concurrent import futures
-import os
-import uuid
 
 import grpc
 
-import ralvarezdev.encrypter_pb2 as encrypter_pb2
-import ralvarezdev.encrypter_pb2_grpc as encrypter_pb2_grpc
-from crypto.ed25519 import generate_certificate_from_public_key, validate_certificate_from_pem_data
-from crypto.ed25519 import encrypt_and_save_file
-from crypto.ed25519 import issuer_public_key, data_path, issuer_subject, certificate_validity_days
+from ralvarezdev import encrypter_pb2
+from ralvarezdev import encrypter_pb2_grpc
+from ralvarezdev import decrypter_pb2
+from crypto.aes.encryption import (
+	encrypt_file_with_symmetric_key,
+	generate_256_bits_key,
+	encrypt_symmetric_key_with_public_key,
+)
+from crypto.ed25519 import (
+	TENDER_PUBLIC_KEY,
+)
+from microservice.grpc.decrypter import create_grpc_client
+from microservice.grpc import (
+	DECRYPTER_GRPC_HOST,
+	DECRYPTER_GRPC_PORT
+)
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def SendEncryptedFile(self, request_iterator, context):
@@ -25,98 +34,85 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			print("Missing certificate metadata")
 			return encrypter_pb2.Empty()
 
-		# Validate the certificate
-		if not validate_certificate_from_pem_data(cert_bytes, issuer_public_key):
-			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
-			context.set_details('Invalid certificate')
-			print("Invalid certificate")
-			return encrypter_pb2.Empty()
-		print("Certificate validated successfully")
-
 		# Accumulate file chunks
-		files_bytes = dict()
+		file_bytes = bytearray()
+		filename = ""
 
 		# Process each chunk in the stream
-		for chunk in request_iterator:
-			filename = chunk.filename
-			if filename not in files_bytes:
-				files_bytes[filename] = bytearray()
-			files_bytes[filename].extend(chunk.content)
+		for request in request_iterator:
+			# Validate request
+			if not request.filename or not request.file_chunk:
+				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+				context.set_details('Filename and file_chunk are required')
+				print("Invalid request: missing filename or file_chunk")
+				return encrypter_pb2.Empty()
+
+			# Ensure all chunks belong to the same file
+			if not filename:
+				filename = request.filename
+			elif filename != request.filename:
+				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+				context.set_details('All chunks must have the same filename')
+				print("All chunks must have the same filename")
+				return encrypter_pb2.Empty
+
+			# Append chunk to the file bytes
+			file_bytes.extend(request.file_chunk)
+			if not file_bytes:
+				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+				context.set_details('No file data received')
+				print("No file data received")
+				return encrypter_pb2.Empty()
 
 		# Iterate over received files and print their sizes
-		for filename, file_bytes in files_bytes.items():
-			total_bytes = len(file_bytes)
-			print(f"Received file: {filename}, Size: {total_bytes} bytes")
+		total_bytes = len(file_bytes)
+		print(f"Received file: {filename}, Size: {total_bytes} bytes")
 
-			# Get the original extension
-			_, ext = os.path.splitext(filename)
-			if ext:
-				ext = "." + ext.lstrip('.')
-			else:
-				ext = ""
+		# Generate AES symmetric key
+		symmetric_key = generate_256_bits_key()
 
-			# Encrypt and save the file
-			output_base_filename = filename + "_" + str(uuid.uuid4())
-			output_file_path = os.path.join(data_path, output_base_filename + ext + ".enc")
-			output_cert_file_path = os.path.join(data_path, output_base_filename + ext + ".crt")
-			encrypt_and_save_file(
-				file_path=os.path.join(data_path, filename),
-				public_key=issuer_public_key,
-				certificate_bytes=cert_bytes,
-				output_file_path=output_file_path,
-				output_cert_path=output_cert_file_path,
-			)
-			print(f"Encrypted file saved to: {output_file_path}")
-
-		# Respond with success message
-		return encrypter_pb2.Empty()
-
-	def GenerateCertificate(self, request, context):
-		# Get the certificate subject from the request
-		common_name = request.common_name
-		organization = request.organization
-		organizational_unit = request.organizational_unit
-		locality = request.locality
-		state = request.state
-		country = request.country
-
-		# Validate required fields
-		required_fields = {
-			"common_name": common_name,
-			"organization": organization,
-			"organizational_unit": organizational_unit,
-			"locality": locality,
-			"state": state,
-			"country": country,
-			}
-
-		for field, value in required_fields.items():
-			if not value:
-				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-				context.set_details(
-					f"{field.replace('_', ' ').title()} is required"
-					)
-				print(f"Missing required field: {field}")
-				yield encrypter_pb2.GenerateCertificateResponse()
-				return
-
-		# Generate the certificate
-		cert_content = generate_certificate_from_public_key(
-			public_key=issuer_public_key,
-			issuer_subject=issuer_subject,
-			common_name=common_name,
-			organization=organization,
-			organizational_unit=organizational_unit,
-			locality=locality,
-			state=state,
-			country=country,
-			certificate_validity_days=certificate_validity_days,
+		# Encrypt the file with the symmetric key
+		encrypted_file_bytes = encrypt_file_with_symmetric_key(
+			file_bytes=file_bytes,
+			key=symmetric_key,
 		)
 
-		print(f"Generated certificate for {common_name}")
+		# Encrypt the symmetric key with the tender's public key
+		encrypted_symmetric_key = encrypt_symmetric_key_with_public_key(
+			symmetric_key=symmetric_key,
+			public_key=TENDER_PUBLIC_KEY,
+		)
 
-		# Return the certificate content
-		yield encrypter_pb2.GenerateCertificateResponse(content=cert_content)
+		# Send encrypted file to Decrypter service
+		client = create_grpc_client(
+			host=DECRYPTER_GRPC_HOST,
+			port=DECRYPTER_GRPC_PORT,
+		)
+		with client as stub:
+			# Prepare the request
+			metadata = (('certificate', cert_bytes.decode('utf-8')),)
+
+			request = decrypter_pb2.EncryptFileRequest(
+				filename=filename,
+				encrypted_file_chunk=encrypted_file_bytes,
+				encrypted_symmetric_key=encrypted_symmetric_key,
+			)
+
+			# Call the Decrypter service
+			try:
+				stub.ReceiveEncryptedFile(request, metadata=metadata)
+			except grpc.RpcError as e:
+				context.set_code(e.code())
+				context.set_details(e.details())
+				print(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
+				return encrypter_pb2.Empty()
+
+		# Close the gRPC client
+		client.close()
+
+		# Return success response
+		print(f"File {filename} encrypted and sent successfully")
+		return encrypter_pb2.Empty()
 
 def serve(host: str, port: int):
 	"""
@@ -142,7 +138,12 @@ def serve(host: str, port: int):
 if __name__ == '__main__':
 	# Get port from arguments
 	parser = ArgumentParser()
-	parser.add_argument('--host', type=str, default='localhost', help='Host to listen on')
+	parser.add_argument(
+		'--host',
+		type=str,
+		default='localhost',
+		help='Host to listen on',
+		)
 	parser.add_argument('--port', type=int, help='Port to listen on')
 	args = parser.parse_args()
 	print(f'Starting server on {args.host}:{args.port}')

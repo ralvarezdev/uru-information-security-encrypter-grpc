@@ -35,10 +35,15 @@ class DecrypterStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ListFiles = channel.unary_unary(
-                '/ralvarezdev.Decrypter/ListFiles',
+        self.SendEncryptedFile = channel.stream_unary(
+                '/ralvarezdev.Decrypter/SendEncryptedFile',
+                request_serializer=ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                _registered_method=True)
+        self.ListCompanyFiles = channel.unary_unary(
+                '/ralvarezdev.Decrypter/ListCompanyFiles',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=ralvarezdev_dot_decrypter__pb2.ListFilesResponse.FromString,
+                response_deserializer=ralvarezdev_dot_decrypter__pb2.ListCompanyFilesResponse.FromString,
                 _registered_method=True)
         self.DecryptFile = channel.unary_stream(
                 '/ralvarezdev.Decrypter/DecryptFile',
@@ -50,16 +55,20 @@ class DecrypterStub(object):
 class DecrypterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ListFiles(self, request, context):
-        """List available files to decrypt
-        """
+    def SendEncryptedFile(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListCompanyFiles(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def DecryptFile(self, request, context):
-        """Decrypt a file using streaming
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -67,10 +76,15 @@ class DecrypterServicer(object):
 
 def add_DecrypterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ListFiles': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListFiles,
+            'SendEncryptedFile': grpc.stream_unary_rpc_method_handler(
+                    servicer.SendEncryptedFile,
+                    request_deserializer=ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'ListCompanyFiles': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListCompanyFiles,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=ralvarezdev_dot_decrypter__pb2.ListFilesResponse.SerializeToString,
+                    response_serializer=ralvarezdev_dot_decrypter__pb2.ListCompanyFilesResponse.SerializeToString,
             ),
             'DecryptFile': grpc.unary_stream_rpc_method_handler(
                     servicer.DecryptFile,
@@ -89,7 +103,34 @@ class Decrypter(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ListFiles(request,
+    def SendEncryptedFile(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/ralvarezdev.Decrypter/SendEncryptedFile',
+            ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListCompanyFiles(request,
             target,
             options=(),
             channel_credentials=None,
@@ -102,9 +143,9 @@ class Decrypter(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/ralvarezdev.Decrypter/ListFiles',
+            '/ralvarezdev.Decrypter/ListCompanyFiles',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ralvarezdev_dot_decrypter__pb2.ListFilesResponse.FromString,
+            ralvarezdev_dot_decrypter__pb2.ListCompanyFilesResponse.FromString,
             options,
             channel_credentials,
             insecure,

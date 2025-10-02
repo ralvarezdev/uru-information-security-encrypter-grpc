@@ -25,15 +25,15 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"7\n\x12\x45ncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t2[\n\tEncrypter\x12N\n\x11SendEncryptedFile\x12\x1f.ralvarezdev.EncryptFileRequest\x1a\x16.google.protobuf.Empty(\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\";\n\x16SendEncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t2_\n\tEncrypter\x12R\n\x11SendEncryptedFile\x12#.ralvarezdev.SendEncryptFileRequest\x1a\x16.google.protobuf.Empty(\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ralvarezdev.encrypter_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ENCRYPTFILEREQUEST']._serialized_start=73
-  _globals['_ENCRYPTFILEREQUEST']._serialized_end=128
-  _globals['_ENCRYPTER']._serialized_start=130
-  _globals['_ENCRYPTER']._serialized_end=221
+  _globals['_SENDENCRYPTFILEREQUEST']._serialized_start=73
+  _globals['_SENDENCRYPTFILEREQUEST']._serialized_end=132
+  _globals['_ENCRYPTER']._serialized_start=134
+  _globals['_ENCRYPTER']._serialized_end=229
 # @@protoc_insertion_point(module_scope)
