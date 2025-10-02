@@ -5,10 +5,15 @@ package ralvarezdev;
 import "google/protobuf/empty.proto";
 
 service Encrypter {
-    rpc SendEncryptedFile(stream EncryptFileRequest) returns (google.protobuf.Empty);
+    rpc SendEncryptedFile(stream SendEncryptFileRequest) returns (SendEncryptFileResponse);
 }
 
-message EncryptFileRequest {
+message SendEncryptFileRequest {
     bytes content = 1;
     string filename = 2;
+}
+
+message SendEncryptFileResponse {
+    bool success = 1;
+    string details = 2;
 }

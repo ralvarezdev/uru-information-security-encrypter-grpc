@@ -6,8 +6,8 @@ set "SCRIPT_DIR=%~dp0"
 
 REM Protobuf-related paths
 set "PROTO_PATH=%SCRIPT_DIR%\proto"
-set "CERTIFICATE_PROTO_PATH=%SCRIPT_DIR%\certificate-grpc\proto"
-set "PROTO_CERTIFICATE_PATH=%CERTIFICATE_PROTO_PATH%\ralvarezdev\certificate.proto"
+set "DECRYPTER_PROTO_PATH=%SCRIPT_DIR%\decrypter-grpc\proto"
+set "PROTO_DECRYPTER_PATH=%DECRYPTER_PROTO_PATH%\ralvarezdev\decrypter.proto"
 set "PROTO_ENCRYPTER_PATH=%PROTO_PATH%\ralvarezdev\encrypter.proto"
 set "PROTO_OUT_PATH=%SCRIPT_DIR%\"
 
@@ -20,8 +20,8 @@ if not exist "%PROTO_OUT_PATH%" (
 )
 
 REM Check if the protobuffer files exist
-if not exist "%PROTO_CERTIFICATE_PATH%" (
-    echo Error: Protobuf file "%PROTO_CERTIFICATE_PATH%" not found!
+if not exist "%PROTO_DECRYPTER_PATH%" (
+    echo Error: Protobuf file "%PROTO_DECRYPTER_PATH%" not found!
     exit /b 1
 )
 if not exist "%PROTO_ENCRYPTER_PATH%" (
@@ -30,5 +30,5 @@ if not exist "%PROTO_ENCRYPTER_PATH%" (
 )
 
 REM Compile the protobuf files
-python -m grpc_tools.protoc -I="%CERTIFICATE_PROTO_PATH%" --python_out="%PROTO_OUT_PATH%" --grpc_python_out="%PROTO_OUT_PATH%" "%PROTO_CERTIFICATE_PATH%"
+python -m grpc_tools.protoc -I="%DECRYPTER_PROTO_PATH%" --python_out="%PROTO_OUT_PATH%" --grpc_python_out="%PROTO_OUT_PATH%" "%PROTO_DECRYPTER_PATH%"
 python -m grpc_tools.protoc -I="%PROTO_PATH%" --python_out="%PROTO_OUT_PATH%" --grpc_python_out="%PROTO_OUT_PATH%" "%PROTO_ENCRYPTER_PATH%"

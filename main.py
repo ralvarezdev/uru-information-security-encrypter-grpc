@@ -7,12 +7,12 @@ import grpc
 
 import ralvarezdev.encrypter_pb2 as encrypter_pb2
 import ralvarezdev.encrypter_pb2_grpc as encrypter_pb2_grpc
-from ed25519.certificate import generate_certificate_from_public_key, validate_certificate_from_pem_data
-from ed25519.encryption import encrypt_and_save_file
-from ed25519 import issuer_public_key, data_path, issuer_subject, certificate_validity_days
+from crypto.ed25519 import generate_certificate_from_public_key, validate_certificate_from_pem_data
+from crypto.ed25519 import encrypt_and_save_file
+from crypto.ed25519 import issuer_public_key, data_path, issuer_subject, certificate_validity_days
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
-	def EncryptFile(self, request_iterator, context):
+	def SendEncryptedFile(self, request_iterator, context):
 		# Get the certificate bytes from metadata
 		cert_bytes = None
 		for key, value in context.invocation_metadata():

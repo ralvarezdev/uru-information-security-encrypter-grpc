@@ -11,4 +11,4 @@ REM Generate keys using OpenSSL
 echo Generating Ed25519 key pair...
 openssl genpkey -algorithm ed25519 -out company_private_key.pem
 openssl pkey -in company_private_key.pem -pubout -out company_public_key.pem
-echo Keys generated: company_private_key.pem and company_public_key.pem"
+echo Keys generated: company_private_key.pem and company_public_key.pem
