@@ -35,31 +35,18 @@ class EncrypterStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.EncryptFile = channel.stream_unary(
-                '/ralvarezdev.Encrypter/EncryptFile',
+        self.SendEncryptedFile = channel.stream_unary(
+                '/ralvarezdev.Encrypter/SendEncryptedFile',
                 request_serializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                _registered_method=True)
-        self.GenerateCertificate = channel.unary_stream(
-                '/ralvarezdev.Encrypter/GenerateCertificate',
-                request_serializer=ralvarezdev_dot_encrypter__pb2.GenerateCertificateRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_encrypter__pb2.GenerateCertificateResponse.FromString,
                 _registered_method=True)
 
 
 class EncrypterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def EncryptFile(self, request_iterator, context):
-        """Upload a file using streaming
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GenerateCertificate(self, request, context):
-        """Generate certificate
-        """
+    def SendEncryptedFile(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -67,15 +54,10 @@ class EncrypterServicer(object):
 
 def add_EncrypterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'EncryptFile': grpc.stream_unary_rpc_method_handler(
-                    servicer.EncryptFile,
+            'SendEncryptedFile': grpc.stream_unary_rpc_method_handler(
+                    servicer.SendEncryptedFile,
                     request_deserializer=ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ),
-            'GenerateCertificate': grpc.unary_stream_rpc_method_handler(
-                    servicer.GenerateCertificate,
-                    request_deserializer=ralvarezdev_dot_encrypter__pb2.GenerateCertificateRequest.FromString,
-                    response_serializer=ralvarezdev_dot_encrypter__pb2.GenerateCertificateResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -89,7 +71,7 @@ class Encrypter(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def EncryptFile(request_iterator,
+    def SendEncryptedFile(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -102,36 +84,9 @@ class Encrypter(object):
         return grpc.experimental.stream_unary(
             request_iterator,
             target,
-            '/ralvarezdev.Encrypter/EncryptFile',
+            '/ralvarezdev.Encrypter/SendEncryptedFile',
             ralvarezdev_dot_encrypter__pb2.EncryptFileRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def GenerateCertificate(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(
-            request,
-            target,
-            '/ralvarezdev.Encrypter/GenerateCertificate',
-            ralvarezdev_dot_encrypter__pb2.GenerateCertificateRequest.SerializeToString,
-            ralvarezdev_dot_encrypter__pb2.GenerateCertificateResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"7\n\x12\x45ncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\"\x96\x01\n\x1aGenerateCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\".\n\x1bGenerateCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x32\xc1\x01\n\tEncrypter\x12H\n\x0b\x45ncryptFile\x12\x1f.ralvarezdev.EncryptFileRequest\x1a\x16.google.protobuf.Empty(\x01\x12j\n\x13GenerateCertificate\x12\'.ralvarezdev.GenerateCertificateRequest\x1a(.ralvarezdev.GenerateCertificateResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bralvarezdev/encrypter.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"7\n\x12\x45ncryptFileRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t2[\n\tEncrypter\x12N\n\x11SendEncryptedFile\x12\x1f.ralvarezdev.EncryptFileRequest\x1a\x16.google.protobuf.Empty(\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,10 +34,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ENCRYPTFILEREQUEST']._serialized_start=73
   _globals['_ENCRYPTFILEREQUEST']._serialized_end=128
-  _globals['_GENERATECERTIFICATEREQUEST']._serialized_start=131
-  _globals['_GENERATECERTIFICATEREQUEST']._serialized_end=281
-  _globals['_GENERATECERTIFICATERESPONSE']._serialized_start=283
-  _globals['_GENERATECERTIFICATERESPONSE']._serialized_end=329
-  _globals['_ENCRYPTER']._serialized_start=332
-  _globals['_ENCRYPTER']._serialized_end=525
+  _globals['_ENCRYPTER']._serialized_start=130
+  _globals['_ENCRYPTER']._serialized_end=221
 # @@protoc_insertion_point(module_scope)

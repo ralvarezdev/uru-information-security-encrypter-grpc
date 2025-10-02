@@ -5,27 +5,10 @@ package ralvarezdev;
 import "google/protobuf/empty.proto";
 
 service Encrypter {
-    // Upload a file using streaming
-    rpc EncryptFile(stream EncryptFileRequest) returns (google.protobuf.Empty);
-
-    // Generate certificate
-    rpc GenerateCertificate(GenerateCertificateRequest) returns (stream GenerateCertificateResponse);
+    rpc SendEncryptedFile(stream EncryptFileRequest) returns (google.protobuf.Empty);
 }
 
 message EncryptFileRequest {
     bytes content = 1;
     string filename = 2;
-}
-
-message GenerateCertificateRequest {
-  string common_name = 1;
-  string organization = 2;
-  string organizational_unit = 3;
-  string locality = 4;
-  string state = 5;
-  string country = 6;
-}
-
-message GenerateCertificateResponse {
-    bytes content = 1;
 }
