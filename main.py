@@ -92,7 +92,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			# Prepare the request
 			metadata = (('certificate', cert_bytes.decode('utf-8')),)
 
-			request = decrypter_pb2.EncryptFileRequest(
+			request = decrypter_pb2.ReceiveFileRequest(
 				filename=filename,
 				encrypted_file_chunk=encrypted_file_bytes,
 				encrypted_symmetric_key=encrypted_symmetric_key,

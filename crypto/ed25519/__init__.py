@@ -8,7 +8,7 @@ from crypto.ed25519.keys import load_private_key_from_file, load_public_key_from
 load_dotenv()
 
 # Get the base directory of the project
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 # Load company's private key from PEM file
 COMPANY_PRIVATE_KEY_FILENAME = "company_private_key.pem"

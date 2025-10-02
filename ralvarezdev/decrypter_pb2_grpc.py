@@ -35,9 +35,9 @@ class DecrypterStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SendEncryptedFile = channel.stream_unary(
-                '/ralvarezdev.Decrypter/SendEncryptedFile',
-                request_serializer=ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.SerializeToString,
+        self.ReceiveEncryptedFile = channel.stream_unary(
+                '/ralvarezdev.Decrypter/ReceiveEncryptedFile',
+                request_serializer=ralvarezdev_dot_decrypter__pb2.ReceiveEncryptFileRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.ListCompanyFiles = channel.unary_unary(
@@ -55,7 +55,7 @@ class DecrypterStub(object):
 class DecrypterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SendEncryptedFile(self, request_iterator, context):
+    def ReceiveEncryptedFile(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -76,9 +76,9 @@ class DecrypterServicer(object):
 
 def add_DecrypterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SendEncryptedFile': grpc.stream_unary_rpc_method_handler(
-                    servicer.SendEncryptedFile,
-                    request_deserializer=ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.FromString,
+            'ReceiveEncryptedFile': grpc.stream_unary_rpc_method_handler(
+                    servicer.ReceiveEncryptedFile,
+                    request_deserializer=ralvarezdev_dot_decrypter__pb2.ReceiveEncryptFileRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'ListCompanyFiles': grpc.unary_unary_rpc_method_handler(
@@ -103,7 +103,7 @@ class Decrypter(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SendEncryptedFile(request_iterator,
+    def ReceiveEncryptedFile(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -116,8 +116,8 @@ class Decrypter(object):
         return grpc.experimental.stream_unary(
             request_iterator,
             target,
-            '/ralvarezdev.Decrypter/SendEncryptedFile',
-            ralvarezdev_dot_decrypter__pb2.SendEncryptFileRequest.SerializeToString,
+            '/ralvarezdev.Decrypter/ReceiveEncryptedFile',
+            ralvarezdev_dot_decrypter__pb2.ReceiveEncryptFileRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
