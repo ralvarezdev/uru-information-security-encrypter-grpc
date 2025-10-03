@@ -33,7 +33,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		cert_bytes = None
 		for key, value in context.invocation_metadata():
 			if key == 'certificate':
-				cert_bytes = value.decode('utf-8')
+				cert_bytes = value.encode('utf-8')
 				break
 		if not cert_bytes:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
