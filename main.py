@@ -5,7 +5,7 @@ import base64
 
 import grpc
 
-from ralvarezdev import encrypter_pb2
+from google.protobuf.empty_pb2 import Empty
 from ralvarezdev import encrypter_pb2_grpc
 from ralvarezdev import decrypter_pb2
 from crypto.aes.encryption import (
@@ -42,7 +42,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Certificate metadata is required')
 			logger.error("Missing certificate metadata")
-			return encrypter_pb2.Empty()
+			return Empty()
 
 		# Accumulate file chunks
 		file_bytes = bytearray()
@@ -55,7 +55,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('Filename and content are required')
 				logger.error("Invalid request: missing filename or content")
-				return encrypter_pb2.Empty()
+				return Empty()
 
 			# Ensure all chunks belong to the same file
 			if not filename:
@@ -64,7 +64,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('All chunks must have the same filename')
 				logger.error("All chunks must have the same filename")
-				return encrypter_pb2.Empty
+				return Empty
 
 			# Append chunk to the file bytes
 			file_bytes.extend(request.content)
@@ -72,7 +72,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('No file data received')
 				logger.error("No file data received")
-				return encrypter_pb2.Empty()
+				return Empty()
 
 		# Iterate over received files and print their sizes
 		total_bytes = len(file_bytes)
@@ -109,27 +109,29 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		metadata = (('certificate', base64.b64encode(encrypted_file_bytes).decode('ascii')),
 		            ('encrypted_aes_256_key', encrypted_symmetric_key.hex()))
 
-		request = decrypter_pb2.ReceiveEncryptedFileRequest(
-			filename=filename,
-			encrypted_content=encrypted_file_bytes,
-			content_signature=content_signature,
-		)
-
 		# Call the Decrypter service
 		try:
-			client.ReceiveEncryptedFile(request, metadata=metadata)
+			# Send the encrypted file by streaming
+			for i in range(0, len(encrypted_file_bytes), 1024 * 1024):
+				chunk = encrypted_file_bytes[i:i + 1024 * 1024]
+				chunk_request = decrypter_pb2.ReceiveEncryptedFileRequest(
+					filename=filename,
+					encrypted_content=chunk,
+					content_signature=content_signature,
+				)
+				client.ReceiveEncryptedFile(iter([chunk_request]), metadata=metadata)
 		except grpc.RpcError as e:
 			context.set_code(e.code())
 			context.set_details(e.details())
 			logger.error(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
-			return encrypter_pb2.Empty()
+			return Empty()
 
 		# Close the gRPC client
 		client.close()
 
 		# Return success response
 		logger.info(f"File {filename} encrypted and sent successfully")
-		return encrypter_pb2.Empty()
+		return Empty()
 
 def serve(host: str, port: int):
 	"""
