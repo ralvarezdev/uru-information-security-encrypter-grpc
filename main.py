@@ -109,7 +109,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		metadata = (('certificate', base64.b64encode(encrypted_file_bytes).decode('ascii')),
 		            ('encrypted_aes_256_key', encrypted_symmetric_key.hex()))
 
-		request = decrypter_pb2.ReceiveFileRequest(
+		request = decrypter_pb2.ReceiveEncryptedFileRequest(
 			filename=filename,
 			encrypted_content=encrypted_file_bytes,
 			content_signature=content_signature,
