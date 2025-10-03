@@ -34,8 +34,10 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def SendEncryptedFile(self, request_iterator, context):
 		# Get the certificate bytes from metadata
 		cert_bytes = None
+		cert_bytes_b64 = None
 		for key, value in context.invocation_metadata():
 			if key == 'certificate':
+				cert_bytes_b64 = value
 				cert_bytes = base64.b64decode(value)
 				break
 		if not cert_bytes:
@@ -106,7 +108,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		)
 
 		# Prepare the request
-		metadata = (('certificate', base64.b64encode(encrypted_file_bytes).decode('ascii')),
+		metadata = (('certificate', cert_bytes_b64),
 		            ('encrypted_aes_256_key', encrypted_symmetric_key.hex()))
 
 		# Call the Decrypter service
