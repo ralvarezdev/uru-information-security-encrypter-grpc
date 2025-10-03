@@ -13,12 +13,14 @@ from crypto.aes.encryption import (
 )
 from crypto.ed25519 import (
 	TENDER_PUBLIC_KEY,
+	COMPANY_PRIVATE_KEY,
 )
 from microservice.grpc.decrypter import create_grpc_client
 from microservice.grpc import (
 	DECRYPTER_GRPC_HOST,
 	DECRYPTER_GRPC_PORT
 )
+from crypto.sha.signature import sign_file_with_private_key
 
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def SendEncryptedFile(self, request_iterator, context):
@@ -26,7 +28,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		cert_bytes = None
 		for key, value in context.invocation_metadata():
 			if key == 'certificate':
-				cert_bytes = value.encode('utf-8')
+				cert_bytes = value.decode('utf-8')
 				break
 		if not cert_bytes:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
@@ -83,29 +85,36 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			public_key=TENDER_PUBLIC_KEY,
 		)
 
+		# Calculate content hash (simple length-based hash for demonstration)
+		content_signature = sign_file_with_private_key(
+			file_bytes=file_bytes,
+			private_key=COMPANY_PRIVATE_KEY,
+		)
+
 		# Send encrypted file to Decrypter service
 		client = create_grpc_client(
 			host=DECRYPTER_GRPC_HOST,
 			port=DECRYPTER_GRPC_PORT,
 		)
-		with client as stub:
-			# Prepare the request
-			metadata = (('certificate', cert_bytes.decode('utf-8')),)
 
-			request = decrypter_pb2.ReceiveFileRequest(
-				filename=filename,
-				encrypted_file_chunk=encrypted_file_bytes,
-				encrypted_symmetric_key=encrypted_symmetric_key,
-			)
+		# Prepare the request
+		metadata = (('certificate', cert_bytes.encode('utf-8')),
+		            ('encrypted_aes_256_key', encrypted_symmetric_key.hex()))
 
-			# Call the Decrypter service
-			try:
-				stub.ReceiveEncryptedFile(request, metadata=metadata)
-			except grpc.RpcError as e:
-				context.set_code(e.code())
-				context.set_details(e.details())
-				print(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
-				return encrypter_pb2.Empty()
+		request = decrypter_pb2.ReceiveFileRequest(
+			filename=filename,
+			encrypted_content=encrypted_file_bytes,
+			content_signature=content_signature,
+		)
+
+		# Call the Decrypter service
+		try:
+			client.ReceiveEncryptedFile(request, metadata=metadata)
+		except grpc.RpcError as e:
+			context.set_code(e.code())
+			context.set_details(e.details())
+			print(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
+			return encrypter_pb2.Empty()
 
 		# Close the gRPC client
 		client.close()
