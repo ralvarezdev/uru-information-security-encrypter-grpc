@@ -128,7 +128,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		)
 
 		# Send encrypted file to Decrypter service
-		client = create_grpc_client(
+		channel, client = create_grpc_client(
 			host=DECRYPTER_GRPC_HOST,
 			port=DECRYPTER_GRPC_PORT,
 		)
@@ -148,9 +148,8 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			context.set_details(e.details())
 			logger.error(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
 			return Empty()
-
-		# Close the gRPC client
-		client.close()
+		finally:
+			channel.close()
 
 		# Return success response
 		logger.info(f"File {filename} encrypted and sent successfully")

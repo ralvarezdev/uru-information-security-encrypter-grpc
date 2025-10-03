@@ -15,4 +15,4 @@ def create_grpc_client(host: str, port: int):
     """
     channel = grpc.insecure_channel(f"{host}:{port}")
     stub = decrypter_pb2_grpc.DecrypterStub(channel)
-    return stub
+    return channel, stub
