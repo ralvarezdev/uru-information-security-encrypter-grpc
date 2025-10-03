@@ -81,7 +81,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 
 		# Encrypt the file with the symmetric key
 		encrypted_file_bytes = encrypt_file_with_symmetric_key(
-			file_bytes=file_bytes,
+			file_bytes=bytes(file_bytes),
 			key=symmetric_key,
 		)
 
