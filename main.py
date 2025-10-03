@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from concurrent import futures
+import logging
 
 import grpc
 
@@ -22,6 +23,10 @@ from microservice.grpc import (
 )
 from crypto.sha.signature import sign_file_with_private_key
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def SendEncryptedFile(self, request_iterator, context):
 		# Get the certificate bytes from metadata
@@ -33,7 +38,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		if not cert_bytes:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Certificate metadata is required')
-			print("Missing certificate metadata")
+			logger.error("Missing certificate metadata")
 			return encrypter_pb2.Empty()
 
 		# Accumulate file chunks
@@ -46,7 +51,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			if not request.filename or not request.file_chunk:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('Filename and file_chunk are required')
-				print("Invalid request: missing filename or file_chunk")
+				logger.error("Invalid request: missing filename or file_chunk")
 				return encrypter_pb2.Empty()
 
 			# Ensure all chunks belong to the same file
@@ -55,7 +60,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			elif filename != request.filename:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('All chunks must have the same filename')
-				print("All chunks must have the same filename")
+				logger.error("All chunks must have the same filename")
 				return encrypter_pb2.Empty
 
 			# Append chunk to the file bytes
@@ -63,12 +68,12 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 			if not file_bytes:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('No file data received')
-				print("No file data received")
+				logger.error("No file data received")
 				return encrypter_pb2.Empty()
 
 		# Iterate over received files and print their sizes
 		total_bytes = len(file_bytes)
-		print(f"Received file: {filename}, Size: {total_bytes} bytes")
+		logger.info(f"Received file: {filename}, Size: {total_bytes} bytes")
 
 		# Generate AES symmetric key
 		symmetric_key = generate_256_bits_key()
@@ -113,14 +118,14 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		except grpc.RpcError as e:
 			context.set_code(e.code())
 			context.set_details(e.details())
-			print(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
+			logger.error(f"gRPC error from Decrypter service: {e.code()} - {e.details()}")
 			return encrypter_pb2.Empty()
 
 		# Close the gRPC client
 		client.close()
 
 		# Return success response
-		print(f"File {filename} encrypted and sent successfully")
+		logger.info(f"File {filename} encrypted and sent successfully")
 		return encrypter_pb2.Empty()
 
 def serve(host: str, port: int):
@@ -155,7 +160,7 @@ if __name__ == '__main__':
 		)
 	parser.add_argument('--port', type=int, help='Port to listen on')
 	args = parser.parse_args()
-	print(f'Starting server on {args.host}:{args.port}')
+	logger.info(f'Starting server on {args.host}:{args.port}')
 
 	# Start the gRPC server
 	serve(args.host, args.port)
