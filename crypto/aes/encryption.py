@@ -2,6 +2,8 @@ import base64
 import os
 
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 def generate_key(length: int = 32) -> bytes:
 	"""
@@ -52,5 +54,10 @@ def encrypt_symmetric_key_with_public_key(symmetric_key: bytes, public_key) -> b
 	"""
 	encrypted_key = public_key.encrypt(
 		symmetric_key,
+		padding.OAEP(
+			mgf=padding.MGF1(algorithm=hashes.SHA256()),
+			algorithm=hashes.SHA256(),
+			label=None
+		)
 	)
 	return encrypted_key

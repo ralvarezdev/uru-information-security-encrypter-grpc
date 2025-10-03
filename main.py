@@ -13,8 +13,10 @@ from crypto.aes.encryption import (
 	generate_256_bits_key,
 	encrypt_symmetric_key_with_public_key,
 )
-from crypto.ed25519 import (
+from crypto.rsa import (
 	TENDER_PUBLIC_KEY,
+)
+from crypto.ed25519 import (
 	COMPANY_PRIVATE_KEY,
 )
 from microservice.grpc.decrypter import create_grpc_client
