@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from concurrent import futures
 import logging
+import base64
 
 import grpc
 
@@ -33,7 +34,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		cert_bytes = None
 		for key, value in context.invocation_metadata():
 			if key == 'certificate':
-				cert_bytes = value.encode('utf-8')
+				cert_bytes = base64.b64decode(value)
 				break
 		if not cert_bytes:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
@@ -103,7 +104,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		)
 
 		# Prepare the request
-		metadata = (('certificate', cert_bytes.encode('utf-8')),
+		metadata = (('certificate', base64.b64encode(encrypted_file_bytes).decode('ascii')),
 		            ('encrypted_aes_256_key', encrypted_symmetric_key.hex()))
 
 		request = decrypter_pb2.ReceiveFileRequest(
