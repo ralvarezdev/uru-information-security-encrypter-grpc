@@ -11,7 +11,7 @@ def create_grpc_client(host: str, port: int):
 		port (int): The server port.
 
 	Returns:
-		decrypter_pb2_grpc.CertificateStub: The gRPC client stub.
+		decrypter_pb2_grpc.DecrypterStub: The gRPC client stub.
     """
     channel = grpc.insecure_channel(f"{host}:{port}")
     stub = decrypter_pb2_grpc.DecrypterStub(channel)
