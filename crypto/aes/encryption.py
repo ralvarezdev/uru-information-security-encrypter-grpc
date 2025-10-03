@@ -1,4 +1,5 @@
-import secrets
+import base64
+import os
 
 from cryptography.fernet import Fernet
 
@@ -12,7 +13,7 @@ def generate_key(length: int = 32) -> bytes:
     Returns:
         bytes: The generated AES symmetric key.
     """
-	return secrets.token_bytes(length)
+	return base64.urlsafe_b64encode(os.urandom(length))
 
 def generate_256_bits_key() -> bytes:
 	"""
