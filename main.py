@@ -30,6 +30,32 @@ from crypto.sha.signature import sign_file_with_private_key
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def receive_file_request_generator(
+	filename: str,
+	file_bytes: bytes,
+	content_signature: bytes,
+	chunk_size: int = 1024
+) -> decrypter_pb2.ReceiveEncryptedFileRequest:
+	"""
+	Generator that yields file chunks for gRPC streaming.
+
+	Args:
+		filename (str): The name of the file.
+		file_bytes (bytes): The complete file content.
+		content_signature (bytes): The digital signature of the file content.
+		chunk_size (int): The size of each chunk in bytes. Default is 1024 bytes.
+
+	Yields:
+		decrypter_pb2.ReceiveEncryptedFileRequest: The file chunk request.
+	"""
+	for i in range(0, len(file_bytes), chunk_size):
+		chunk = file_bytes[i:i + chunk_size]
+		yield decrypter_pb2.ReceiveEncryptedFileRequest(
+			encrypted_content=chunk,
+			filename=filename,
+			content_signature=content_signature,
+		)
+
 class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 	def SendEncryptedFile(self, request_iterator, context):
 		# Get the certificate bytes from metadata
@@ -113,15 +139,10 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 
 		# Call the Decrypter service
 		try:
-			# Send the encrypted file by streaming
-			for i in range(0, len(encrypted_file_bytes), 1024 * 1024):
-				chunk = encrypted_file_bytes[i:i + 1024 * 1024]
-				chunk_request = decrypter_pb2.ReceiveEncryptedFileRequest(
-					filename=filename,
-					encrypted_content=chunk,
-					content_signature=content_signature,
-				)
-				client.ReceiveEncryptedFile(iter([chunk_request]), metadata=metadata)
+			client.ReceiveEncryptedFile(
+				receive_file_request_generator(filename, encrypted_file_bytes, content_signature, chunk_size=1024*1024),
+				metadata=metadata
+			)
 		except grpc.RpcError as e:
 			context.set_code(e.code())
 			context.set_details(e.details())
