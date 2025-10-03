@@ -49,10 +49,10 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 		# Process each chunk in the stream
 		for request in request_iterator:
 			# Validate request
-			if not request.filename or not request.file_chunk:
+			if not request.filename or not request.content:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-				context.set_details('Filename and file_chunk are required')
-				logger.error("Invalid request: missing filename or file_chunk")
+				context.set_details('Filename and content are required')
+				logger.error("Invalid request: missing filename or content")
 				return encrypter_pb2.Empty()
 
 			# Ensure all chunks belong to the same file
@@ -65,7 +65,7 @@ class EncrypterServicer(encrypter_pb2_grpc.EncrypterServicer):
 				return encrypter_pb2.Empty
 
 			# Append chunk to the file bytes
-			file_bytes.extend(request.file_chunk)
+			file_bytes.extend(request.content)
 			if not file_bytes:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details('No file data received')
